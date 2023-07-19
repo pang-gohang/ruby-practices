@@ -31,18 +31,18 @@ head_brank = []
 first_day_wday.times { head_brank << ' ' }
 days = head_brank + days
 
-puts "#{@this_year}年 #{@this_month}月"
+puts "#{@this_month}月 #{@this_year}".center(20)
 puts day_of_week.join(' ')
 days.each do |d|
   if d.instance_of?(Date)
     if d == Date.today # 今日なら色を変える
-      print "\e[31m#{d.day.to_s.rjust(3)}\e[0m"
+      print "\e[31m#{d.day.to_s.rjust(2)}\e[0m "
     else
-      print d.day.to_s.rjust(3)
+      print "#{d.day.to_s.rjust(2)} "
     end
     puts if d.wday == 6 # 土曜日なら改行
   else
-    print d.rjust(3)
+    print "#{d.rjust(2)} "
   end
 end
 

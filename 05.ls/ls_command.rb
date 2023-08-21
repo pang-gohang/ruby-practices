@@ -1,10 +1,7 @@
 # frozen_string_literal: true
 
 def file_names
-  inputs = Dir.glob('*')
-  files = inputs.select { |input| File.file?(input) }
-  folders = inputs.select { |input| File.directory?(input) }
-  folders + files
+  Dir.glob('*')
 end
 
 def ls_command

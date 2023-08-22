@@ -1,7 +1,12 @@
 # frozen_string_literal: true
 
 def file_names
-  Dir.glob('*')
+  ls_option = ARGV
+  if ls_option.include?('-a')
+    Dir.glob('*', File::FNM_DOTMATCH)
+  else
+    Dir.glob('*')
+  end
 end
 
 def ls_command

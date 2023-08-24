@@ -1,13 +1,9 @@
 # frozen_string_literal: true
 
 def file_names
-  ls_option = ARGV.first
-  glob_option = ls_option&.include?('-a') ? File::FNM_DOTMATCH : nil
-  if glob_option.nil?
-    Dir.glob('*')
-  else
-    Dir.glob('*', glob_option)
-  end
+  ls_option = ARGV
+  glob_option = ls_option&.include?('-a') ? File::FNM_DOTMATCH : 0
+  Dir.glob('*', glob_option)
 end
 
 def ls_command

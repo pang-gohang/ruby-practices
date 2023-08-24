@@ -2,7 +2,7 @@
 
 def file_names
   ls_option = ARGV
-  glob_option = ls_option&.include?('-a') ? File::FNM_DOTMATCH : 0
+  glob_option = ls_option.include?('-a') ? File::FNM_DOTMATCH : 0
   Dir.glob('*', glob_option)
 end
 

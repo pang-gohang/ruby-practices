@@ -2,7 +2,8 @@
 
 def file_names
   ls_option = ARGV
-  ls_option.include?('-r') ? Dir.glob('*').reverse : Dir.glob('*')
+  glob_result = Dir.glob('*')
+  ls_option.include?('-r') ? glob_result.reverse : glob_result
 end
 
 def ls_command

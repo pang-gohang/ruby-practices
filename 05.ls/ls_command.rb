@@ -27,7 +27,7 @@ def one_stat(file_path = '.')
   File.stat(file_path)
 end
 
-def stat_permission(file_path = '.')
+def stat_permission(stat)
   permission_map = {
     0 => '---',
     1 => '--x',
@@ -39,34 +39,28 @@ def stat_permission(file_path = '.')
     7 => 'rwx'
   }
 
-  stat = one_stat(file_path)
   file_type = stat.directory? ? 'd' : '-'
   permission = stat.mode.to_s(8)[-3, 3].chars.map(&:to_i).map { |p| permission_map[p] }.join('')
   file_type + permission
 end
 
-def count_link(file_path = '.')
-  stat = one_stat(file_path)
+def count_link(stat)
   stat.nlink
 end
 
-def user_id(file_path = '.')
-  stat = one_stat(file_path)
+def user_id(stat)
   Etc.getpwuid(stat.uid).name
 end
 
-def group_id(file_path = '.')
-  stat = one_stat(file_path)
+def group_id(stat)
   Etc.getgrgid(stat.gid).name
 end
 
-def calc_size(file_path = '.')
-  stat = one_stat(file_path)
+def calc_size(stat)
   stat.size
 end
 
-def mtime(file_path = '.')
-  stat = one_stat(file_path)
+def mtime(stat)
   stat.mtime.strftime('%_m %_d %H:%M')
 end
 
@@ -75,29 +69,37 @@ def file_name(file_path = '.')
 end
 
 def total_block_size(names)
-  total = 0
-  names.map do |name|
-    total += one_stat(name).directory? ? 0 : (calc_size(name) / 512.00 / 8).ceil * 8
+  names.sum do |name|
+    stat = one_stat(name)
+    stat.directory? ? 0 : (calc_size(stat) / 512.00 / 8).ceil * 8
   end
-  total
 end
 
-def one_ls_l_command(file_path = '.', adjust = [8, 2, 8, 5, 7])
-  permissions = stat_permission(file_path)
-  hard_links = count_link(file_path)
-  owner = user_id(file_path)
-  group = group_id(file_path)
-  size = calc_size(file_path)
-  m_time = mtime(file_path)
-  name = file_name(file_path)
+def one_ls_l_command(stat, file_name, adjust = {
+  permissions: 8,
+  hard_links: 2,
+  owner: 8,
+  group: 5,
+  size: 7
+})
+  permissions = stat_permission(stat)
+  hard_links = count_link(stat)
+  owner = user_id(stat)
+  group = group_id(stat)
+  size = calc_size(stat)
+  m_time = mtime(stat)
+  name = file_name(file_name)
 
-  output = "#{permissions.rjust(adjust[0])} " \
-  "#{hard_links.to_s.rjust(adjust[1])} " \
-  "#{owner.ljust(adjust[2])} " \
-  "#{group.ljust(adjust[3])} " \
-  "#{size.to_s.rjust(adjust[4])} " \
-  "#{m_time.rjust(11)} " \
-  "#{name}"
+  output = [
+    permissions.rjust(adjust[:permissions]),
+    hard_links.to_s.rjust(adjust[:hard_links]),
+    owner.ljust(adjust[:owner]),
+    group.ljust(adjust[:group]),
+    size.to_s.rjust(adjust[:size]),
+    m_time.rjust(11),
+    name
+  ].join(' ')
+
   puts output
 end
 
@@ -106,19 +108,38 @@ def ls_command_l_option
   total = total_block_size(names)
   puts "total #{total}"
   adjust_space = adjust_space(names)
-  names.each do |stat|
-    one_ls_l_command(stat, adjust_space)
+  names.each do |name|
+    stat = one_stat(name)
+    one_ls_l_command(stat, name, adjust_space)
   end
 end
 
 def adjust_space(file_names)
-  max_permission = file_names.map { |name| stat_permission(name).length }.max
-  max_hard_links = file_names.map { |name| count_link(name).to_s.length }.max
-  max_owner = file_names.map { |name| user_id(name).length }.max
-  max_group = file_names.map { |name| group_id(name).length }.max
-  max_size = file_names.map { |name| calc_size(name).to_s.length }.max
+  max_values = {
+    permissions: 0,
+    hard_links: 0,
+    owner: 0,
+    group: 0,
+    size: 0
+  }
 
-  [max_permission, max_hard_links + 1, max_owner + 1, max_group + 1, max_size]
+  file_names.each do |name|
+    stat = File.stat(name)
+    max_values[:permissions] = [max_values[:permissions], stat_permission(stat).length].max
+    max_values[:hard_links] = [max_values[:hard_links], count_link(stat).to_s.length].max
+    max_values[:owner] = [max_values[:owner], user_id(stat).length].max
+    max_values[:group] = [max_values[:group], group_id(stat).length].max
+    max_values[:size] = [max_values[:size], calc_size(stat).to_s.length].max
+  end
+  max_values[:hard_links] += 1
+  max_values[:owner] += 1
+  max_values[:group] += 1
+  max_values
 end
 
-ls_command_l_option
+def select_ls_command
+  option = ARGV
+  option.include?('-l') ? ls_command_l_option : ls_command
+end
+
+select_ls_command

@@ -6,7 +6,7 @@ def file_names
   Dir.glob('*')
 end
 
-def ls_command
+def list
   names = file_names
   max_name_length = names.map(&:length).max || 0
   num_columns = 3
@@ -103,7 +103,7 @@ def one_ls_l_command(stat, file_name, adjust = {
   puts output
 end
 
-def ls_command_l_option
+def long_format
   names = file_names
   total = total_block_size(names)
   puts "total #{total}"
@@ -137,9 +137,9 @@ def adjust_space(file_names)
   max_values
 end
 
-def select_ls_command
+def main
   option = ARGV
-  option.include?('-l') ? ls_command_l_option : ls_command
+  option.include?('-l') ? long_format : list
 end
 
-select_ls_command
+main

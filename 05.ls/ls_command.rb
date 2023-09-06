@@ -6,7 +6,7 @@ def file_names
   Dir.glob('*')
 end
 
-def list
+def multi_column_vertical_sort
   names = file_names
   max_name_length = names.map(&:length).max || 0
   num_columns = 3
@@ -139,7 +139,7 @@ end
 
 def main
   option = ARGV
-  option.include?('-l') ? long_format : list
+  option.include?('-l') ? long_format : multi_column_vertical_sort
 end
 
 main

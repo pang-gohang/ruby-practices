@@ -2,13 +2,24 @@
 
 require 'etc'
 
-def file_names
-  Dir.glob('*')
+def main
+  options = {
+    l: false,
+    a: false,
+    r: false
+  }
+  option = ARGV.join('')
+  options[:l] = option.include?('l')
+  options[:a] = option.include?('a')
+  options[:r] = option.include?('r')
+
+  options[:l] ? long_format(options) : multi_column_vertical_sort(options)
 end
 
-def multi_column_vertical_sort
-  names = file_names
+def multi_column_vertical_sort(options)
+  names = file_names(options)
   max_name_length = names.map(&:length).max || 0
+
   num_columns = 3
   num_rows = (names.size + num_columns - 1) / num_columns
 
@@ -22,7 +33,23 @@ def multi_column_vertical_sort
   end
 end
 
-# 以下-l optionで使用
+def long_format(options)
+  names = file_names(options)
+  total = total_block_size(names)
+  puts "total #{total}"
+  adjust_space = adjust_space(names)
+  names.each do |name|
+    stat = one_stat(name)
+    one_ls_l_command(stat, name, adjust_space)
+  end
+end
+
+def file_names(options)
+  glob_option = options[:a] ? File::FNM_DOTMATCH : 0
+  names = Dir.glob('*', glob_option)
+  options[:r] ? names.reverse : names
+end
+
 def one_stat(file_path = '.')
   File.stat(file_path)
 end
@@ -103,17 +130,6 @@ def one_ls_l_command(stat, file_name, adjust = {
   puts output
 end
 
-def long_format
-  names = file_names
-  total = total_block_size(names)
-  puts "total #{total}"
-  adjust_space = adjust_space(names)
-  names.each do |name|
-    stat = one_stat(name)
-    one_ls_l_command(stat, name, adjust_space)
-  end
-end
-
 def adjust_space(file_names)
   max_values = {
     permissions: 0,
@@ -135,11 +151,6 @@ def adjust_space(file_names)
   max_values[:owner] += 1
   max_values[:group] += 1
   max_values
-end
-
-def main
-  option = ARGV
-  option.include?('-l') ? long_format : multi_column_vertical_sort
 end
 
 main

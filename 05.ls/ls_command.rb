@@ -2,8 +2,8 @@
 
 def file_names
   ls_option = ARGV
-  glob_option = ls_option.include?('-a') ? File::FNM_DOTMATCH : 0
-  Dir.glob('*', glob_option)
+  glob_result = Dir.glob('*')
+  ls_option.include?('-r') ? glob_result.reverse : glob_result
 end
 
 def ls_command

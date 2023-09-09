@@ -1,13 +1,14 @@
 # frozen_string_literal: true
 
 def file_names
-  Dir.glob('*')
+  ls_option = ARGV
+  glob_option = ls_option.include?('-a') ? File::FNM_DOTMATCH : 0
+  Dir.glob('*', glob_option)
 end
 
 def ls_command
   names = file_names
   max_name_length = names.map(&:length).max || 0
-
   num_columns = 3
   num_rows = (names.size + num_columns - 1) / num_columns
 

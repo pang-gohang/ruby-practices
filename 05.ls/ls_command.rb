@@ -2,14 +2,7 @@
 
 require 'etc'
 
-def file_names(options)
-  glob_option = options[:a] ? File::FNM_DOTMATCH : 0
-  names = Dir.glob('*', glob_option)
-  options[:r] ? names.reverse : names
-end
-
-def multi_column_vertical_sort(options)
-  names = file_names(options)
+def multi_column_vertical_sort(names)
   max_name_length = names.map(&:length).max || 0
 
   num_columns = 3
@@ -106,8 +99,7 @@ def one_ls_l_command(stat, file_name, adjust = {
   puts output
 end
 
-def long_format(options)
-  names = file_names(options)
+def long_format(names)
   total = total_block_size(names)
   puts "total #{total}"
   adjust_space = adjust_space(names)
@@ -151,7 +143,15 @@ def main
   options[:a] = option.include?('a')
   options[:r] = option.include?('r')
 
-  options[:l] ? long_format(options) : multi_column_vertical_sort(options)
+  def file_names(options)
+    glob_option = options[:a] ? File::FNM_DOTMATCH : 0
+    names = Dir.glob('*', glob_option)
+    options[:r] ? names.reverse : names
+  end
+
+  names = file_names(options)
+
+  options[:l] ? long_format(names) : multi_column_vertical_sort(names)
 end
 
 main

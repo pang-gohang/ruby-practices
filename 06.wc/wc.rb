@@ -1,23 +1,10 @@
 # frozen_string_literal: true
 
+require 'optparse'
+
 def main
-  options = {
-    l: false,
-    w: false,
-    c: false
-  }
-
+  options = OptionParser.new.getopts(ARGV, 'lwc')
   args = ARGV
-
-  if args[0]&.start_with?('-')
-    option = args.shift  # 最初の引数を取り出し、オプションとして扱う
-    options[:l] = option.include?('l')
-    options[:w] = option.include?('w')
-    options[:c] = option.include?('c')
-  else
-    options[:l] = options[:w] = options[:c] = true
-  end
-
   option_count = options.values.count(true)
 
   if args.empty?
@@ -59,9 +46,9 @@ def with_file_path(args, options, option_count)
     content = File.read(arg)
     filename = arg
     output = []
-    output.push(count_lines(content)) if options[:l]
-    output.push(count_words(content)) if options[:w]
-    output.push(count_characters(content)) if options[:c]
+    output.push(count_lines(content)) if options['l']
+    output.push(count_words(content)) if options['w']
+    output.push(count_characters(content)) if options['c']
     output.map.with_index do |count, index|
       total[index] += count
     end
@@ -91,4 +78,5 @@ def output_one_line_without_name(option_count, output)
     exit
   end
 end
+
 main

@@ -22,8 +22,8 @@ def count_words(content)
   content.split(/\s+/).count
 end
 
-def count_characters(content)
-  content.length
+def calc_bytesize(content)
+  content.bytesize
 end
 
 def output_one_line_with_name(option_count, output, name)
@@ -42,13 +42,13 @@ end
 
 def with_file_path(args, options, option_count)
   total = [0, 0, 0]
-  args.map do |arg|
+  args.each do |arg|
     content = File.read(arg)
     filename = arg
     output = []
     output.push(count_lines(content)) if options['l']
     output.push(count_words(content)) if options['w']
-    output.push(count_characters(content)) if options['c']
+    output.push(calc_bytesize(content)) if options['c']
     output.map.with_index do |count, index|
       total[index] += count
     end
@@ -61,7 +61,7 @@ def with_stdin(content, options, option_count)
   output = []
   output.push(count_lines(content)) if options[:l]
   output.push(count_words(content)) if options[:w]
-  output.push(count_characters(content)) if options[:c]
+  output.push(calc_bytesize(content)) if options[:c]
   output_one_line_without_name(option_count, output)
 end
 

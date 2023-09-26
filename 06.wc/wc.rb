@@ -4,6 +4,7 @@ require 'optparse'
 
 def main
   options = OptionParser.new.getopts(ARGV, 'lwc')
+  options.transform_values! { true } if options.values.all?(false)
   args = ARGV
   option_count = options.values.count(true)
 

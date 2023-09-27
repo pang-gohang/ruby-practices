@@ -5,7 +5,7 @@ require 'optparse'
 def main
   options = OptionParser.new.getopts(ARGV, 'lwc')
   options.transform_values! { true } if options.values.all?(false) # オプション未指定の場合
-  format_string = create_formatsgring(options)
+  format_string = create_formatstring(options)
 
   if ARGV.empty? # 標準入力の場合
     output_line(calc_one_document($stdin.read, options), format_string)
@@ -51,7 +51,7 @@ def output_line(document_infomation, format_string)
   document_infomation
 end
 
-def create_formatsgring(options)
+def create_formatstring(options)
   line_format = []
   output_format = {
     'l' => '%<lines>8d',

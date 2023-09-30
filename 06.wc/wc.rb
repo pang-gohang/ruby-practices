@@ -3,7 +3,6 @@
 require 'optparse'
 require 'debug'
 
-
 def main
   options = OptionParser.new.getopts(ARGV, 'lwc')
   options.transform_values! { true } if options.values.all?(false) # オプション未指定の場合
@@ -18,25 +17,25 @@ def main
   else # ファイルが複数の場合
     output_data = calc_many_documents(ARGV, options)
   end
-  p output_data # 出力用データまでOK
   format_string = create_output_format(output_data[-1], options)
-  # 出力
+  output_data.each do |data|
+    output_line(data, format_string)
+  end
+end
 
+def count_lines(content)
+  content.lines.count
+end
+
+def count_words(content)
+  content.split(/\s+/).count
+end
+
+def calc_bytesize(content)
+  content.bytesize
 end
 
 def calc_one_document(string, options, filename = nil)
-  def count_lines(content)
-    content.lines.count
-  end
-
-  def count_words(content)
-    content.split(/\s+/).count
-  end
-
-  def calc_bytesize(content)
-    content.bytesize
-  end
-
   output = {}
   output['l'] = count_lines(string) if options['l']
   output['w'] = count_words(string) if options['w']
@@ -54,11 +53,9 @@ def output_line(document_infomation, format_string)
   }
   printf format(format_string, output)
   puts
-  document_infomation
 end
 
 def create_output_format(output_data, options)
-  # binding.break
   line_format = []
   line_length = output_data['l'].to_s.length <= 8 ? 8 : output_data['l'].to_s.length + 1
   word_length = output_data['w'].to_s.length <= 8 ? 8 : output_data['w'].to_s.length + 1
@@ -94,4 +91,3 @@ def calc_many_documents(args, options)
 end
 
 main
-

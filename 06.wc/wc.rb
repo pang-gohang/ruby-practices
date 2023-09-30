@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'optparse'
+require 'debug'
+
 
 def main
   options = OptionParser.new.getopts(ARGV, 'lwc')
@@ -17,7 +19,7 @@ def main
     output_data = calc_many_documents(ARGV, options)
   end
   p output_data # 出力用データまでOK
-  # format_string = create_output_format(options)
+  format_string = create_output_format(output_data[-1], options)
   # 出力
 
 end
@@ -55,12 +57,17 @@ def output_line(document_infomation, format_string)
   document_infomation
 end
 
-def create_output_format(options)
+def create_output_format(output_data, options)
+  # binding.break
   line_format = []
+  line_length = output_data['l'].to_s.length <= 8 ? 8 : output_data['l'].to_s.length + 1
+  word_length = output_data['w'].to_s.length <= 8 ? 8 : output_data['w'].to_s.length + 1
+  char_length = output_data['c'].to_s.length <= 8 ? 8 : output_data['c'].to_s.length + 1
+
   output_format = {
-    'l' => '%<lines>8d',
-    'w' => '%<words>8d',
-    'c' => '%<chars>8d',
+    'l' => "%<lines>#{line_length}d",
+    'w' => "%<words>#{word_length}d",
+    'c' => "%<chars>#{char_length}d",
     'name' => ' %<name>s'
   }
 
@@ -87,3 +94,4 @@ def calc_many_documents(args, options)
 end
 
 main
+

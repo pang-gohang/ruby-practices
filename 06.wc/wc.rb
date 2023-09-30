@@ -5,32 +5,36 @@ require 'optparse'
 def main
   options = OptionParser.new.getopts(ARGV, 'lwc')
   options.transform_values! { true } if options.values.all?(false) # オプション未指定の場合
-  format_string = create_output_format(options)
 
+  output_data = []
   if ARGV.empty? # 標準入力の場合
-    output_line(calc_one_document($stdin.read, options), format_string)
+    output_data.push(calc_one_document($stdin.read, options))
   elsif ARGV.size == 1 # ファイルが１つの場合
     args = ARGV.join('')
     content = File.read(args)
-    output_line(calc_one_document(content, options, args), format_string)
+    output_data.push(calc_one_document(content, options, args))
   else # ファイルが複数の場合
-    output_many_file(ARGV, options, format_string)
+    output_data = calc_many_documents(ARGV, options)
   end
-end
+  p output_data # 出力用データまでOK
+  # format_string = create_output_format(options)
+  # 出力
 
-def count_lines(content)
-  content.lines.count
-end
-
-def count_words(content)
-  content.split(/\s+/).count
-end
-
-def calc_bytesize(content)
-  content.bytesize
 end
 
 def calc_one_document(string, options, filename = nil)
+  def count_lines(content)
+    content.lines.count
+  end
+
+  def count_words(content)
+    content.split(/\s+/).count
+  end
+
+  def calc_bytesize(content)
+    content.bytesize
+  end
+
   output = {}
   output['l'] = count_lines(string) if options['l']
   output['w'] = count_words(string) if options['w']
@@ -67,16 +71,19 @@ def create_output_format(options)
   line_format.join('')
 end
 
-def output_many_file(args, options, format_string)
+def calc_many_documents(args, options)
+  output = []
   total = { 'l' => 0, 'w' => 0, 'c' => 0, 'filename' => 'total' }
   args.each do |arg|
     content = File.read(arg)
-    subtotal = output_line(calc_one_document(content, options, arg), format_string)
+    subtotal = calc_one_document(content, options, arg)
+    output.push(subtotal)
     total['l'] += subtotal['l'] || 0
     total['w'] += subtotal['w'] || 0
     total['c'] += subtotal['c'] || 0
   end
-  output_line(total, format_string)
+  output.push(total)
+  output
 end
 
 main

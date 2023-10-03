@@ -10,8 +10,8 @@ def main
   if ARGV.empty? # 標準入力の場合
     output_data.push(calc_one_document($stdin.read, options))
   elsif ARGV.size == 1 # ファイルが１つの場合
-    args = ARGV.first
-    content = File.read(args)
+    document_names = ARGV.first
+    content = File.read(document_names)
     output_data.push(calc_one_document(content, options, args))
   else # ファイルが複数の場合
     output_data = calc_many_documents(ARGV, options)
@@ -56,14 +56,16 @@ end
 
 def create_output_format(output_data, options)
   line_format = []
-  line_length = output_data['l'].to_s.length <= 8 ? 8 : output_data['l'].to_s.length + 1
-  word_length = output_data['w'].to_s.length <= 8 ? 8 : output_data['w'].to_s.length + 1
-  char_length = output_data['c'].to_s.length <= 8 ? 8 : output_data['c'].to_s.length + 1
+  infomation_length = Hash['l', nil, 'w', nil, 'c', nil]
+
+  infomation_length.each do |key, _|
+    infomation_length[key] = output_data[key].to_s.length <= 8 ? 8 : output_data[key].to_s.length + 1
+  end
 
   output_format = {
-    'l' => "%<lines>#{line_length}d",
-    'w' => "%<words>#{word_length}d",
-    'c' => "%<chars>#{char_length}d",
+    'l' => "%<lines>#{infomation_length['l']}d",
+    'w' => "%<words>#{infomation_length['w']}d",
+    'c' => "%<chars>#{infomation_length['c']}d",
     'name' => ' %<name>s'
   }
 

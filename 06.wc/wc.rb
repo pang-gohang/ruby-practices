@@ -10,13 +10,13 @@ def main
   if ARGV.empty? # 標準入力の場合
     output_data.push(calc_one_document($stdin.read, options))
   elsif ARGV.size == 1 # ファイルが１つの場合
-    args = ARGV.join('')
+    args = ARGV.first
     content = File.read(args)
     output_data.push(calc_one_document(content, options, args))
   else # ファイルが複数の場合
     output_data = calc_many_documents(ARGV, options)
   end
-  format_string = create_output_format(output_data[-1], options)
+  format_string = create_output_format(output_data.last, options)
   output_data.each do |data|
     output_line(data, format_string)
   end

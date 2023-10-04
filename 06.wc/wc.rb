@@ -10,9 +10,9 @@ def main
   if ARGV.empty? # 標準入力の場合
     output_data.push(calc_one_document($stdin.read, options))
   elsif ARGV.size == 1 # ファイルが１つの場合
-    document_names = ARGV.first
-    content = File.read(document_names)
-    output_data.push(calc_one_document(content, options, document_names))
+    document_name = ARGV.first
+    content = File.read(document_name)
+    output_data.push(calc_one_document(content, options, document_name))
   else # ファイルが複数の場合
     output_data = calc_many_documents(ARGV, options)
   end

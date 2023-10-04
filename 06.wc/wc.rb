@@ -12,7 +12,7 @@ def main
   elsif ARGV.size == 1 # ファイルが１つの場合
     document_names = ARGV.first
     content = File.read(document_names)
-    output_data.push(calc_one_document(content, options, args))
+    output_data.push(calc_one_document(content, options, document_names))
   else # ファイルが複数の場合
     output_data = calc_many_documents(ARGV, options)
   end
@@ -59,7 +59,8 @@ def create_output_format(output_data, options)
   infomation_length = Hash['l', nil, 'w', nil, 'c', nil]
 
   infomation_length.each do |key, _|
-    infomation_length[key] = output_data[key].to_s.length <= 8 ? 8 : output_data[key].to_s.length + 1
+    key_length = output_data[key].to_s.length
+    infomation_length[key] = key_length <= 8 ? 8 : key_length + 1
   end
 
   output_format = {
